@@ -13,5 +13,4 @@ This project was only for demonstration and test purposes.
 2. Import db.sql (or create it on your own)
 
 # Screenshots
-http://i.imgur.com/SMNuUAz.png
 ![Alt text](/screenshot.png?raw=true "Optional Title")
