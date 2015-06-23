@@ -50,7 +50,16 @@ mysqli_select_db($link,"DATABASE");
 		<div class="col-md-12 column">
 			<table class="table table-striped table-condensed table-hover">
 			<?php
-				$sqlt = "SELECT * FROM artikel";
+				if(isset($_POST['done'])){
+					$sqlt = "UPDATE artikel SET STATUS='1' WHERE ID=".$_POST['done']."";
+					$result = mysqli_query($link,$sqlt)or die(mysqli_error());
+				}
+				if(isset($_POST['delete'])){
+					$sqlt = "UPDATE artikel SET STATUS='2' WHERE ID=".$_POST['delete']."";
+					$result = mysqli_query($link,$sqlt)or die(mysqli_error());
+				}
+				
+				$sqlt = "SELECT * FROM artikel WHERE STATUS=0";
 				$result = mysqli_query($link,$sqlt)or die(mysqli_error());
 				
 				echo "<thead><tr><th>Name</th><th>Link</th><th>Wert</th><th>Aktionen</th></tr></thead><tbody>";
@@ -65,52 +74,119 @@ mysqli_select_db($link,"DATABASE");
 							<td>".$name."</td>
 							<td><a href='".$url."' target='_blank'>".$url."</a></td>
 							<td>".$wert." €</td>
+							<form action='' method='POST'>
 							<td>
-							<button type='button' class='btn btn-success btn-xs'><span class='glyphicon glyphicon-ok' aria-hidden='true'></span></button>
-							<button type='button' class='btn btn-danger btn-xs'><span class='glyphicon glyphicon-remove' aria-hidden='true'></span></button>
-							<button type='button' class='btn btn-info btn-xs'><span class='glyphicon glyphicon-trash' aria-hidden='true'></span></button>
+							
+							<button type='submit' value='".$id."' name='done' class='btn btn-success btn-xs'><span class='glyphicon glyphicon-ok' aria-hidden='true'></span></button>
+							
+							<button type='submit' value='".$id."' name='delete' class='btn btn-danger btn-xs'><span class='glyphicon glyphicon-remove' aria-hidden='true'></span></button>
+							
 							</td>
+							</form>
 						</tr>";
 				} 
-
 				echo "</tbody>";
 				mysqli_close($con);
 			?>				
-			</table>
-			<button class="btn btn-default" type="button" data-toggle="collapse" data-target="#formular" aria-expanded="false" aria-controls="collapseExample">
-			  Neuer Eintrag
-			</button>
+			</table>	
 		</div>
 	</div>
 	<div class="row clearfix">
-		<div class="col-md-12 column collapse" id="formular">
-			<form role="form" action="" method="POST">
-				<div class="form-group">
-					 <label for="name">Name</label><input type="text" class="form-control" id="name" name="name">
-				</div>
-				<div class="form-group">
-					 <label for="url">Link</label><input type="text" class="form-control" id="url" name="url">
-				</div>
-				<div class="form-group">
-					<label class="sr-only" for="wert">Wert</label>
-					<div class="input-group">
-					  <div class="input-group-addon">€</div>
-					  <input type="text" class="form-control" id="wert" name="wert" placeholder="Wert">
-					</div>
-				</div>
-				<button type="submit" class="btn btn-default" name="submit" id="submit">Eintragen</button>
-			</form>
-		<?php
-			if(isset($_POST['submit']))
-			{
-				$NAME = $_POST[name];
-				$URL= $_POST[url];
-				$WERT= $_POST[wert];
+	
+		<div class="col-md-12 column">
 
-				$insert = "INSERT INTO artikel(NAME, URL, WERT, STATUS) VALUES ('$NAME', '$URL', '$WERT', '0')";
-				mysqli_query($link,$insert) or die(mysqli_error($link));
-			}
-		?>
+		  <!-- Nav tabs -->
+		  <ul class="nav nav-tabs" role="tablist">
+			<li role="presentation" class="active"><a href="#new" aria-controls="new" role="tab" data-toggle="tab">Neuer Eintrag</a></li>
+			<li role="presentation"><a href="#gekauft" aria-controls="gekauft" role="tab" data-toggle="tab">Gekauft</a></li>
+			<li role="presentation"><a href="#deleted" aria-controls="deleted" role="tab" data-toggle="tab">Gelöscht</a></li>
+		  </ul>
+
+		  <!-- Tab panes -->
+		  <div class="tab-content">
+			<div role="tabpanel" class="tab-pane active" id="new">
+				<form role="form" action="" method="POST">
+					<div class="form-group">
+						 <label for="name">Name</label><input type="text" class="form-control" id="name" name="name">
+					</div>
+					<div class="form-group">
+						 <label for="url">Link</label><input type="text" class="form-control" id="url" name="url">
+					</div>
+					<div class="form-group">
+						<label class="sr-only" for="wert">Wert</label>
+						<div class="input-group">
+						  <div class="input-group-addon">€</div>
+						  <input type="text" class="form-control" id="wert" name="wert" placeholder="Wert">
+						</div>
+					</div>
+					<button type="submit" class="btn btn-default" name="submit" id="submit">Eintragen</button>
+				</form>
+				<?php
+					if(isset($_POST['submit']))
+					{
+						$NAME = $_POST[name];
+						$URL= $_POST[url];
+						$WERT= $_POST[wert];
+
+						$insert = "INSERT INTO artikel(NAME, URL, WERT, STATUS) VALUES ('$NAME', '$URL', '$WERT', '0')";
+						mysqli_query($link,$insert) or die(mysqli_error($link));
+					}
+				?>
+			</div>
+			
+			<div role="tabpanel" class="tab-pane" id="gekauft">
+				<table class="table table-striped table-condensed table-hover">
+				<?php
+					$sqlt = "SELECT * FROM artikel WHERE STATUS=1";
+					$result = mysqli_query($link,$sqlt)or die(mysqli_error());
+					
+					echo "<thead><tr><th>Name</th><th>Link</th><th>Wert</th></tr></thead><tbody>";
+
+					while($row = mysqli_fetch_array($result)) {
+						$id = $row['ID'];
+						$name = $row['NAME'];
+						$url = $row['URL'];
+						$wert = $row['WERT'];
+						$status = $row['STATUS'];
+						echo "<tr class='success'>
+								<td>".$name."</td>
+								<td><a href='".$url."' target='_blank'>".$url."</a></td>
+								<td>".$wert." €</td>
+							</tr>";
+					} 
+					echo "</tbody>";
+					mysqli_close($con);
+				?>				
+				</table>
+			</div>
+
+			<div role="tabpanel" class="tab-pane" id="deleted">
+				<table class="table table-striped table-condensed table-hover">
+				<?php
+					$sqlt = "SELECT * FROM artikel WHERE STATUS=2";
+					$result = mysqli_query($link,$sqlt)or die(mysqli_error());
+					
+					echo "<thead><tr><th>Name</th><th>Link</th><th>Wert</th></tr></thead><tbody>";
+
+					while($row = mysqli_fetch_array($result)) {
+						$id = $row['ID'];
+						$name = $row['NAME'];
+						$url = $row['URL'];
+						$wert = $row['WERT'];
+						$status = $row['STATUS'];
+						echo "<tr class='danger'>
+								<td>".$name."</td>
+								<td><a href='".$url."' target='_blank'>".$url."</a></td>
+								<td>".$wert." €</td>
+							</tr>";
+					} 
+					echo "</tbody>";
+					mysqli_close($con);
+				?>				
+				</table>
+			</div>
+		  </div>
+
 		</div>
 	</div>
 </div>
