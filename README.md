@@ -4,7 +4,6 @@ Please do NEVER use it on a live-system. It has several security-issues I don't 
 This project was only for demonstration and test purposes.
 
 # To-Do
-* Make buttons functional
 * Sum up costs and put it somewhere
 * Fix the SQL-Injections and XSS's
 
